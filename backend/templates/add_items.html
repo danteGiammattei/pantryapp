@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Pantry Item</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <nav>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/add_items">Add Items</a>
+      <a href="/search">Search</a>
+    </div>
+  </nav>
+
+  <main class="form-container">
+    <h1>Add Pantry Item</h1>
+    <form id="itemForm">
+      <label>Name:
+        <input type="text" id="name" required>
+      </label>
+
+      <label>Quantity:
+        <input type="number" step="any" id="quantity" required>
+      </label>
+
+      <label>Unit:
+        <select id="uom" name="uom">
+          <option value="EA">ea</option>
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option value="L">L</option>
+          <option value="mL">mL</option>
+          <option value="packs">Packs</option>
+          <option value="bottle">Bottles</option>
+        </select>
+      </label>
+
+      <label>Expiry Date:
+        <input type="date" id="expiry_date">
+      </label>
+
+      <label>Location:
+        <select id="location" required>
+          <option value="">-- Select --</option>
+          <option value="Pantry">Pantry</option>
+          <option value="Fridge">Fridge</option>
+          <option value="Freezer">Freezer</option>
+        </select>
+      </label>
+
+      <button type="submit">Add Item</button>
+    </form>
+
+    <p id="result"></p>
+  </main>
+
+  <script>
+    document.getElementById('itemForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const item = {
+        name: document.getElementById('name').value,
+        quantity: parseFloat(document.getElementById('quantity').value),
+        uom: document.getElementById('uom').value,
+        expiry_date: document.getElementById('expiry_date').value || null,
+        location: document.getElementById('location').value
+      };
+
+      const res = await fetch('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+
+      const result = await res.json();
+      document.getElementById('result').textContent = result.message || 'Something went wrong';
+    });
+  </script>
+</body>
+</html>

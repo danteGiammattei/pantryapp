@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Pantry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <nav>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/add_items">Add Items</a>
+      <a href="/search">Search</a>
+    </div>
+  </nav>
+
+  <main class="recipe-search">
+    <h1>What are we looking for?</h1>
+    <input type="text" id="searchBox" placeholder="Search item name...">
+    <div id="results" style="height: 40em; overflow: scroll"></div>
+  </main>
+
+  <script>
+    const searchBox = document.getElementById('searchBox');
+    const results = document.getElementById('results');
+
+    async function fetchItems(search = '') {
+      const res = await fetch(`/items?search=${encodeURIComponent(search)}`);
+      const items = await res.json();
+      renderItems(items);
+    }
+
+    function renderItems(items) {
+      results.innerHTML = '';
+      if (items.length === 0) {
+        results.innerHTML = '<p>No items found.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const expiry = item.expiry_date;
+        const expiryWarning = expiry && new Date(expiry) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        card.innerHTML = `
+          <h3>${item.name}</h3>
+          <p>${item.quantity} ${item.uom}</p>
+          <p>Location: ${item.location}</p>
+          <p ${expiryWarning ? 'class="expiring"' : ''}>Expiry: ${expiry || 'N/A'}</p>
+        `;
+
+        results.appendChild(card);
+      });
+    }
+
+    searchBox.addEventListener('input', (e) => fetchItems(e.target.value));
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.menu-toggle').addEventListener('click', () => {
+        document.querySelector('.menu-items').classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pantry Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <nav>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/add_items">Add Items</a>
+      <a href="/search">Search</a>
+    </div>
+  </nav>
+  
+  <main class="container">
+    <section class="intro">
+      <div class="welcome">
+        <h1>Welcome to</h1>
+        <h1 class="highlight">the Pantry</h1>
+      </div>
+    </section>
+    
+    <section class="search">
+      <h2>What's for dinner?</h2>
+      <div class="recipe-search">
+        <input type="text" id="recipeInput" placeholder="Enter a recipe...">
+        <button onclick="searchRecipe()">Let's Cook</button>
+      </div>
+      <div id="recipeResults"></div>
+
+    </section>
+  </main>
+<script>
+ async function searchRecipe() {
+      const query = document.getElementById('recipeInput').value;
+      if (!query) return;
+
+      const res = await fetch(`/get_recipe?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const output = document.getElementById('recipeResults');
+
+      output.innerHTML = `
+        <h3>${data.title}</h3>
+        <h4>Ingredients:</h4>
+        <ul>${data.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+        <h4>To Buy:</h4>
+        <ul>${data.to_buy.map(i => `<li>${i}</li>`).join('')}</ul>
+      `;
+    }
+</script>
+</body>
+</html>
